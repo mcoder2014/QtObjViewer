@@ -30,13 +30,18 @@ RCC_DIR = ./tmp
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    OpenglWindow.cpp
+    OpenGLWidget.cpp \
+    Vertex.cpp
 
 HEADERS += \
         mainwindow.h \
-    OpenglWindow.h
+    OpenGLWidget.h \
+    Vertex.h
 
 FORMS += \
         mainwindow.ui
 
 TRANSLATIONS += objViewer_cn.ts
+
+RESOURCES += \
+    objviewer.qrc
