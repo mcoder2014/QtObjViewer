@@ -3,18 +3,55 @@
 #include "Vertex.h"
 #include <QOpenGLShaderProgram>
 
-// Create a colored triangle
+// Front Verticies
+#define VERTEX_FTR Vertex( QVector3D( 0.5f,  0.5f,  0.5f), QVector3D( 1.0f, 0.0f, 0.0f ) )
+#define VERTEX_FTL Vertex( QVector3D(-0.5f,  0.5f,  0.5f), QVector3D( 0.0f, 1.0f, 0.0f ) )
+#define VERTEX_FBL Vertex( QVector3D(-0.5f, -0.5f,  0.5f), QVector3D( 0.0f, 0.0f, 1.0f ) )
+#define VERTEX_FBR Vertex( QVector3D( 0.5f, -0.5f,  0.5f), QVector3D( 0.0f, 0.0f, 0.0f ) )
+
+// Back Verticies
+#define VERTEX_BTR Vertex( QVector3D( 0.5f,  0.5f, -0.5f), QVector3D( 1.0f, 1.0f, 0.0f ) )
+#define VERTEX_BTL Vertex( QVector3D(-0.5f,  0.5f, -0.5f), QVector3D( 0.0f, 1.0f, 1.0f ) )
+#define VERTEX_BBL Vertex( QVector3D(-0.5f, -0.5f, -0.5f), QVector3D( 1.0f, 0.0f, 1.0f ) )
+#define VERTEX_BBR Vertex( QVector3D( 0.5f, -0.5f, -0.5f), QVector3D( 1.0f, 1.0f, 1.0f ) )
+
+// Create a colored cube
 static const Vertex sg_vertexes[] = {
-  Vertex( QVector3D( 0.00f,  0.75f, 1.0f), QVector3D(1.0f, 0.0f, 0.0f) ),
-  Vertex( QVector3D( 0.75f, -0.75f, 1.0f), QVector3D(0.0f, 1.0f, 0.0f) ),
-  Vertex( QVector3D(-0.75f, -0.75f, 1.0f), QVector3D(0.0f, 0.0f, 1.0f) )
+  // Face 1 (Front)
+    VERTEX_FTR, VERTEX_FTL, VERTEX_FBL,
+    VERTEX_FBL, VERTEX_FBR, VERTEX_FTR,
+  // Face 2 (Back)
+    VERTEX_BBR, VERTEX_BTL, VERTEX_BTR,
+    VERTEX_BTL, VERTEX_BBR, VERTEX_BBL,
+  // Face 3 (Top)
+    VERTEX_FTR, VERTEX_BTR, VERTEX_BTL,
+    VERTEX_BTL, VERTEX_FTL, VERTEX_FTR,
+  // Face 4 (Bottom)
+    VERTEX_FBR, VERTEX_FBL, VERTEX_BBL,
+    VERTEX_BBL, VERTEX_BBR, VERTEX_FBR,
+  // Face 5 (Left)
+    VERTEX_FBL, VERTEX_FTL, VERTEX_BTL,
+    VERTEX_FBL, VERTEX_BTL, VERTEX_BBL,
+  // Face 6 (Right)
+    VERTEX_FTR, VERTEX_FBR, VERTEX_BBR,
+    VERTEX_BBR, VERTEX_BTR, VERTEX_FTR
 };
+
+#undef VERTEX_BBR
+#undef VERTEX_BBL
+#undef VERTEX_BTL
+#undef VERTEX_BTR
+
+#undef VERTEX_FBR
+#undef VERTEX_FBL
+#undef VERTEX_FTL
+#undef VERTEX_FTR
 
 
 OpenGLWidget::OpenGLWidget()
     :QOpenGLWidget(), QOpenGLFunctions()
 {
-
+    m_transform.translate(0.0f, 0.0f, -5.0f);
 }
 
 OpenGLWidget::~OpenGLWidget()
@@ -26,11 +63,14 @@ void OpenGLWidget::initializeGL()
 {
     // initialize opengl
     initializeOpenGLFunctions();
-    connect(context(), SIGNAL(aboutToBeDestroyed()),
-            this, SLOT(teardownGL()), Qt::DirectConnection);
+//    connect(context(), SIGNAL(aboutToBeDestroyed()),
+//            this, SLOT(teardownGL()), Qt::DirectConnection);
+    connect(this, SIGNAL(frameSwapped()),
+            this, SLOT(update()));
     this->printContextInformation();
 
-    // gl
+    // 设置全局的gl设置
+    glEnable(GL_CULL_FACE);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     // // Application-specific initialization
@@ -45,6 +85,10 @@ void OpenGLWidget::initializeGL()
                     ":/shaders/resources/shaders/simple.frag");
         m_program->link();
         m_program->bind();
+
+        // Cache Uniform Location
+        u_modelToWorld = m_program->uniformLocation("modelToWorld");
+        u_worldToView = m_program->uniformLocation("worldToView");
 
         // Create Buffer (Do not release until VAO is created)
         m_vertex.create();
@@ -87,6 +131,8 @@ void OpenGLWidget::resizeGL(int w, int h)
 {
     qDebug() << "openglWidget resize: " << w
              << " "<< h;
+    m_projection.setToIdentity();
+    m_projection.perspective(45.0f, w / float(h), 1.0f, 1000.0f);
 }
 
 ///
@@ -101,8 +147,13 @@ void OpenGLWidget::paintGL()
 
     // Render using our shader
     m_program->bind();
+    m_program->setUniformValue(u_worldToView, m_projection);
+    // The calls to setUniformValue() allow us to
+    // update the value of worldToView and modelToWorld.
+
     {
       m_object.bind();
+      m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
       glDrawArrays(
                   GL_TRIANGLES,
                   0,
@@ -124,6 +175,15 @@ void OpenGLWidget::teardownGL()
     delete m_program;
 
     qDebug() << "teardown gl";
+}
+
+void OpenGLWidget::update()
+{
+    // update instance information
+    m_transform.rotate(1.0f, QVector3D(0.4f, 0.3f, 0.3f));
+
+    // Schedule a redraw
+    QOpenGLWidget::update();
 }
 
 ///

@@ -5,6 +5,8 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
+#include <QMatrix4x4>
+#include "Transform3D.h"
 
 class QOpenGLShaderProgram;
 
@@ -23,12 +25,19 @@ public:
 
 protected slots:
     void teardownGL();
+    void update();
 
 private:
     // OpenGL State Information
     QOpenGLBuffer m_vertex;
     QOpenGLVertexArrayObject m_object;
     QOpenGLShaderProgram *m_program;
+
+    // Shader Information
+    int u_modelToWorld;
+    int u_worldToView;
+    QMatrix4x4 m_projection;
+    Transform3D m_transform;
 
     void printContextInformation();     // 输出系统版本信息
 };

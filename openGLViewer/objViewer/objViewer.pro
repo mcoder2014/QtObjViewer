@@ -31,12 +31,14 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     OpenGLWidget.cpp \
-    Vertex.cpp
+    Vertex.cpp \
+    Transform3D.cpp
 
 HEADERS += \
         mainwindow.h \
     OpenGLWidget.h \
-    Vertex.h
+    Vertex.h \
+    Transform3D.h
 
 FORMS += \
         mainwindow.ui
