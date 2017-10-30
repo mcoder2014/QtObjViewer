@@ -7,6 +7,7 @@
 #include <QOpenGLVertexArrayObject>
 #include <QMatrix4x4>
 #include "Transform3D.h"
+#include "Camera3D.h"
 
 class QOpenGLShaderProgram;
 
@@ -16,6 +17,7 @@ class OpenGLWidget
 {
     Q_OBJECT
 public:
+
     OpenGLWidget();
     ~OpenGLWidget();
 
@@ -27,6 +29,12 @@ protected slots:
     void teardownGL();
     void update();
 
+protected:
+    void keyPressEvent(QKeyEvent* event);
+    void keyReleaseEvent(QKeyEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+
 private:
     // OpenGL State Information
     QOpenGLBuffer m_vertex;
@@ -35,9 +43,12 @@ private:
 
     // Shader Information
     int u_modelToWorld;
-    int u_worldToView;
+    int u_worldToCamera;
+    int u_cameraToView;
+//    int u_worldToView;
     QMatrix4x4 m_projection;
     Transform3D m_transform;
+    Camera3D m_camera;
 
     void printContextInformation();     // 输出系统版本信息
 };
