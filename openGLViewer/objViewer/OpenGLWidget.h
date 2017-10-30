@@ -8,6 +8,7 @@
 #include <QMatrix4x4>
 #include "Transform3D.h"
 #include "Camera3D.h"
+#include "OpenGLMesh.h"
 
 class QOpenGLShaderProgram;
 
@@ -25,6 +26,9 @@ public:
     void resizeGL(int w, int h);
     void paintGL();
 
+public slots:
+    void loadMesh();    // 创建一个 Mesh 对象测试
+
 protected slots:
     void teardownGL();
     void update();
@@ -36,19 +40,22 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
 
 private:
-    // OpenGL State Information
-    QOpenGLBuffer m_vertex;
-    QOpenGLVertexArrayObject m_object;
-    QOpenGLShaderProgram *m_program;
-
-    // Shader Information
+    // Cached Uniforms 三个变换的流程
     int u_modelToWorld;
     int u_worldToCamera;
     int u_cameraToView;
 //    int u_worldToView;
+
+    // Transformations
     QMatrix4x4 m_projection;
     Transform3D m_transform;
     Camera3D m_camera;
+
+    // OpenGL 状态信息
+//    QOpenGLBuffer m_vertex;
+//    QOpenGLVertexArrayObject m_object;
+    QOpenGLShaderProgram *m_program;
+    OpenGLMesh *m_openMesh;             // 先只允许一个mesh
 
     void printContextInformation();     // 输出系统版本信息
 };

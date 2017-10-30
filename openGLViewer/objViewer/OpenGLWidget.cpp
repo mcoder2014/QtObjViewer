@@ -55,6 +55,7 @@ OpenGLWidget::OpenGLWidget()
 {
     m_transform.translate(0.0f, 0.0f, -5.0f);
     this->grabKeyboard();
+    this->m_openMesh = NULL;
 }
 
 OpenGLWidget::~OpenGLWidget()
@@ -73,10 +74,13 @@ void OpenGLWidget::initializeGL()
     this->printContextInformation();
 
     // 设置全局的gl设置
-    glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);                 // cull face
+    glEnable(GL_DEPTH_TEST);                // 深度测试
+    glLineWidth(10.f);
+    glClearDepthf(1.0f);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-    // // Application-specific initialization
+    //  Application-specific initialization
     {
         // Create Shader (Do not release until VAO is created)
         m_program = new QOpenGLShaderProgram();
@@ -91,38 +95,10 @@ void OpenGLWidget::initializeGL()
 
         // Cache Uniform Location
         this->u_modelToWorld = m_program->uniformLocation("modelToWorld");
-        //        u_worldToView = m_program->uniformLocation("worldToView");
         this->u_worldToCamera = m_program->uniformLocation("worldToCamera");
         this->u_cameraToView = m_program->uniformLocation("cameraToView");
 
-        // Create Buffer (Do not release until VAO is created)
-        m_vertex.create();
-        m_vertex.bind();
-        m_vertex.setUsagePattern(QOpenGLBuffer::StaticDraw);
-        m_vertex.allocate(sg_vertexes, sizeof(sg_vertexes));
-
-        // Create Vertex Array Object
-        m_object.create();
-        m_object.bind();
-        m_program->enableAttributeArray(0);
-        m_program->enableAttributeArray(1);
-        m_program->setAttributeBuffer(
-                    0,
-                    GL_FLOAT,
-                    Vertex::positionOffset(),
-                    Vertex::PositionTupleSize,
-                    Vertex::stride());
-        m_program->setAttributeBuffer(
-                    1,
-                    GL_FLOAT,
-                    Vertex::colorOffset(),
-                    Vertex::ColorTupleSize,
-                    Vertex::stride());
-
-        // Release (unbind) all
-        m_object.release();
-        m_vertex.release();
-        m_program->release();
+        m_program->release();       // realse unbind
     }
 
 }
@@ -148,7 +124,7 @@ void OpenGLWidget::paintGL()
     //    qDebug() << "paintGL";
 
     // clear
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Render using our shader
     m_program->bind();
@@ -157,17 +133,19 @@ void OpenGLWidget::paintGL()
     // The calls to setUniformValue() allow us to
     // update the value of worldToView and modelToWorld.
 
+    // 渲染模型
+    if(this->m_openMesh != NULL)
     {
-        m_object.bind();
         m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
-        glDrawArrays(
-                    GL_TRIANGLES,
-                    0,
-                    sizeof(sg_vertexes) / sizeof(sg_vertexes[0]));
-
-        m_object.release();
+        m_openMesh->draw();
     }
+
     m_program->release();
+}
+
+void OpenGLWidget::loadMesh()
+{
+
 }
 
 ///
@@ -176,8 +154,6 @@ void OpenGLWidget::paintGL()
 void OpenGLWidget::teardownGL()
 {
     // Actually destroy our OpenGL information
-    m_object.destroy();
-    m_vertex.destroy();
     delete m_program;
 
     qDebug() << "teardown gl";
@@ -210,7 +186,6 @@ void OpenGLWidget::update()
         if(Input::keyPressed(Qt::Key_W))
         {
             translation += m_camera.forward();
-            qDebug() << "w";
         }
         if (Input::keyPressed(Qt::Key_S))
         {

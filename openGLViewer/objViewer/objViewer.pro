@@ -34,7 +34,10 @@ SOURCES += \
     Vertex.cpp \
     Transform3D.cpp \
     Camera3D.cpp \
-    Input.cpp
+    Input.cpp \
+    OpenGLMesh.cpp \
+    HalfEdgeMesh.cpp \
+    AbstractMesh.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -42,7 +45,10 @@ HEADERS += \
     Vertex.h \
     Transform3D.h \
     Camera3D.h \
-    Input.h
+    Input.h \
+    OpenGLMesh.h \
+    HalfEdgeMesh.h \
+    AbstractMesh.h
 
 FORMS += \
         mainwindow.ui
