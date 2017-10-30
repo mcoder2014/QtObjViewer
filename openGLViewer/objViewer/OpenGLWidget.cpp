@@ -140,7 +140,7 @@ void OpenGLWidget::resizeGL(int w, int h)
 ///
 void OpenGLWidget::paintGL()
 {
-    qDebug() << "paintGL";
+//    qDebug() << "paintGL";
 
     // clear
     glClear(GL_COLOR_BUFFER_BIT);

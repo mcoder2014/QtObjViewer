@@ -32,13 +32,17 @@ SOURCES += \
         mainwindow.cpp \
     OpenGLWidget.cpp \
     Vertex.cpp \
-    Transform3D.cpp
+    Transform3D.cpp \
+    Camera3D.cpp \
+    Input.cpp
 
 HEADERS += \
         mainwindow.h \
     OpenGLWidget.h \
     Vertex.h \
-    Transform3D.h
+    Transform3D.h \
+    Camera3D.h \
+    Input.h
 
 FORMS += \
         mainwindow.ui
