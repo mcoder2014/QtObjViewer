@@ -12,7 +12,6 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLFunctions>
 
-
 class CustomMesh
         :public QObject
 {
@@ -37,9 +36,7 @@ private:
     bool inited;                                // 是否初始化
     GLenum m_mode;                              // 渲染模式?
     int m_count;                                // 点的数量
-
     friend class objLoader;
-
 };
 
 #endif // CUSTOMMESH_H

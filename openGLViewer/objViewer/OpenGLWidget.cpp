@@ -135,7 +135,7 @@ void OpenGLWidget::paintGL()
     // update the value of worldToView and modelToWorld.
 
     // 渲染模型
-    if(this->m_openMesh != NULL)
+    if(this->m_mesh != NULL)
     {
         m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
 //        m_openMesh->draw();

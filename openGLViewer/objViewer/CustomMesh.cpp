@@ -40,11 +40,11 @@ QOpenGLBuffer *CustomMesh::createBuffer(QOpenGLBuffer::UsagePattern hint)
     buffer.setUsagePattern(hint);
     this->m_buffer.push_back(buffer);
 
-    return buffer;
+    return &buffer;
 
 }
 
 std::vector<QOpenGLBuffer> *CustomMesh::buffers()
 {
-    return this->m_buffer;
+    return &this->m_buffer;
 }

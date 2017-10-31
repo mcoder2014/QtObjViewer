@@ -7,22 +7,17 @@
 #include <assimp/postprocess.h>
 #include <string>
 
-#include "CustomMesh.h"
+class CustomMesh;
 
 class objLoader : public QObject
 {
     Q_OBJECT
 public:
     explicit objLoader(QObject *parent = nullptr);
-    const aiScene *scene;
-
-public slots:
+    const aiScene *scene;       // scene
     const aiScene *loadFile(QString filePath);
     void readAiScene(const aiScene *scene);
     CustomMesh *getMesh(const aiScene *scene);
-
-signals:
-
 };
 
 #endif // OBJLOADER_H
