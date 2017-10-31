@@ -27,6 +27,14 @@ MOC_DIR = ./moc
 OBJECTS_DIR = ./tmp
 RCC_DIR = ./tmp
 
+INCLUDEPATH += \
+    ./ \
+    E:/libs/assimp-3.3/include \      # assimp的Include文件夹的路径
+    E:/libs/OpenMesh-6.3/include \    # openMesh的Include 的文件夹路径
+    $$PWD/../libs/glm
+
+LIBS += -LE:/libs/assimp-3.3/build/code/Release -lassimp-vc140-mt \  # assimp的lib文件
+        -LE:\libs\OpenMesh-6.3\lib -lOpenMeshCore -lOpenMeshTools
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
@@ -36,8 +44,9 @@ SOURCES += \
     Camera3D.cpp \
     Input.cpp \
     OpenGLMesh.cpp \
-    HalfEdgeMesh.cpp \
-    AbstractMesh.cpp
+    objLoader.cpp \
+    CustomMesh.cpp \
+    CustomTexture.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -47,8 +56,9 @@ HEADERS += \
     Camera3D.h \
     Input.h \
     OpenGLMesh.h \
-    HalfEdgeMesh.h \
-    AbstractMesh.h
+    objLoader.h \
+    CustomMesh.h \
+    CustomTexture.h
 
 FORMS += \
         mainwindow.ui

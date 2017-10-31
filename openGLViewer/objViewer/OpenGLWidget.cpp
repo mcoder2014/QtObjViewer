@@ -55,7 +55,8 @@ OpenGLWidget::OpenGLWidget()
 {
     m_transform.translate(0.0f, 0.0f, -5.0f);
     this->grabKeyboard();
-    this->m_openMesh = NULL;
+//    this->m_openMesh = NULL;
+    this->m_mesh = NULL;
 }
 
 OpenGLWidget::~OpenGLWidget()
@@ -137,7 +138,7 @@ void OpenGLWidget::paintGL()
     if(this->m_openMesh != NULL)
     {
         m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
-        m_openMesh->draw();
+//        m_openMesh->draw();
     }
 
     m_program->release();

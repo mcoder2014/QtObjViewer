@@ -9,6 +9,7 @@
 #include "Transform3D.h"
 #include "Camera3D.h"
 #include "OpenGLMesh.h"
+#include "CustomMesh.h"         // 自定义的mesh
 
 class QOpenGLShaderProgram;
 
@@ -55,7 +56,8 @@ private:
 //    QOpenGLBuffer m_vertex;
 //    QOpenGLVertexArrayObject m_object;
     QOpenGLShaderProgram *m_program;
-    OpenGLMesh *m_openMesh;             // 先只允许一个mesh
+//    OpenGLMesh *m_openMesh;             // 先只允许一个mesh
+    CustomMesh *m_mesh;                 // 一个 mesh
 
     void printContextInformation();     // 输出系统版本信息
 };

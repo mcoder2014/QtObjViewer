@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "OpenGLWidget.h"
+#include "objLoader.h"
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -13,6 +15,26 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::openObjFile()
+{
+    objLoader loader;
+    QFileDialog *fileDialog = new QFileDialog(this);
+    fileDialog->setAcceptMode(QFileDialog::AcceptOpen);     // 打开文件模式
+    fileDialog->setFileMode(QFileDialog::ExistingFile);     // 显示存在的文件
+    fileDialog->setViewMode(QFileDialog::Detail);           // 显示详细模式
+    fileDialog->setNameFilter(tr("obj Files(*.obj)"));  // 过滤图片
+    fileDialog->setWindowTitle(tr("Choose one obj file and open it"));    // 对话框标题
+
+    if(fileDialog->exec() == QDialog::Accepted)
+    {
+        QString path = fileDialog->selectedFiles()[0];      // 用户选择的文件名
+
+        qDebug() << "selected file:"
+                 << path;
+        loader.loadFile(path);
+    }
 }
 
 ///
@@ -31,6 +53,8 @@ void MainWindow::init()
 
     this->action_open_file = new QAction(tr("OpenFile"));
     this->action_open_file->setStatusTip(tr("open 3d model file"));
+    connect(this->action_open_file, SIGNAL(triggered(bool)),
+            this, SLOT(openObjFile()));
 
     this->action_save = new QAction(tr("Save"));
     this->action_save->setStatusTip(tr("save file"));
