@@ -34,7 +34,7 @@ INCLUDEPATH += \
     $$PWD/../libs/glm
 
 LIBS += -LE:/libs/assimp-3.3/build/code/Release -lassimp-vc140-mt \  # assimp的lib文件
-        -LE:\libs\OpenMesh-6.3\lib -lOpenMeshCore -lOpenMeshTools
+        -LE:/libs/OpenMesh-6.3/lib -lOpenMeshCore -lOpenMeshTools
 SOURCES += \
         main.cpp \
         mainwindow.cpp \

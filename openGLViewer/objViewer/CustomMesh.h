@@ -25,6 +25,9 @@ public:
     QOpenGLBuffer *createBuffer(
             QOpenGLBuffer::UsagePattern hint = QOpenGLBuffer::StaticDraw);
     std::vector<QOpenGLBuffer> *buffers();
+    void createCube(
+            QVector3D position,
+            float size);                         // 创建一个Cube模型
 
 private:
     std::vector<Vertex> m_vertexs;              // 点信息

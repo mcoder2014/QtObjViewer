@@ -24,11 +24,11 @@ public:
     ~OpenGLWidget();
 
     void initializeGL();
-    void resizeGL(int w, int h);
-    void paintGL();
+    void resizeGL(int w, int h);    // resizeGL
+    void paintGL();     // 绘制GL
 
 public slots:
-    void loadMesh();    // 创建一个 Mesh 对象测试
+    void loadMesh(QString filePath);    // 创建一个 Mesh 对象测试
 
 protected slots:
     void teardownGL();
@@ -53,11 +53,13 @@ private:
     Camera3D m_camera;
 
     // OpenGL 状态信息
-//    QOpenGLBuffer m_vertex;
-//    QOpenGLVertexArrayObject m_object;
+    QOpenGLBuffer m_vertex;
+    QOpenGLVertexArrayObject m_object;
     QOpenGLShaderProgram *m_program;
 //    OpenGLMesh *m_openMesh;             // 先只允许一个mesh
     CustomMesh *m_mesh;                 // 一个 mesh
+    CustomMesh *m_cube;                 // 一个立方体用来检验
+    void createCube();      // 测试立方体
 
     void printContextInformation();     // 输出系统版本信息
 };

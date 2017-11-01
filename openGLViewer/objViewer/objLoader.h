@@ -18,6 +18,7 @@ public:
     const aiScene *loadFile(QString filePath);
     void readAiScene(const aiScene *scene);
     CustomMesh *getMesh(const aiScene *scene);
+    CustomMesh *loadMesh(QString filePath);
 };
 
 #endif // OBJLOADER_H

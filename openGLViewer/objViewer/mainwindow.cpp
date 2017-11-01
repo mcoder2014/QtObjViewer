@@ -19,7 +19,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::openObjFile()
 {
-    objLoader loader;
+//    objLoader loader;
     QFileDialog *fileDialog = new QFileDialog(this);
     fileDialog->setAcceptMode(QFileDialog::AcceptOpen);     // 打开文件模式
     fileDialog->setFileMode(QFileDialog::ExistingFile);     // 显示存在的文件
@@ -33,7 +33,8 @@ void MainWindow::openObjFile()
 
         qDebug() << "selected file:"
                  << path;
-        loader.loadFile(path);
+//        loader.loadFile(path);
+        this->openglwidget->loadMesh(path);
     }
 }
 

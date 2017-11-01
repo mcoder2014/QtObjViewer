@@ -4,6 +4,8 @@
 #include <QKeyEvent>
 #include <QOpenGLShaderProgram>
 #include "Input.h"
+#include "objLoader.h"
+
 
 // Front Verticies
 #define VERTEX_FTR Vertex( QVector3D( 0.5f,  0.5f,  0.5f), QVector3D( 1.0f, 0.0f, 0.0f ) )
@@ -19,22 +21,22 @@
 
 // Create a colored cube
 static const Vertex sg_vertexes[] = {
-    // Face 1 (Front)
+  // Face 1 (Front)
     VERTEX_FTR, VERTEX_FTL, VERTEX_FBL,
     VERTEX_FBL, VERTEX_FBR, VERTEX_FTR,
-    // Face 2 (Back)
+  // Face 2 (Back)
     VERTEX_BBR, VERTEX_BTL, VERTEX_BTR,
     VERTEX_BTL, VERTEX_BBR, VERTEX_BBL,
-    // Face 3 (Top)
+  // Face 3 (Top)
     VERTEX_FTR, VERTEX_BTR, VERTEX_BTL,
     VERTEX_BTL, VERTEX_FTL, VERTEX_FTR,
-    // Face 4 (Bottom)
+  // Face 4 (Bottom)
     VERTEX_FBR, VERTEX_FBL, VERTEX_BBL,
     VERTEX_BBL, VERTEX_BBR, VERTEX_FBR,
-    // Face 5 (Left)
+  // Face 5 (Left)
     VERTEX_FBL, VERTEX_FTL, VERTEX_BTL,
     VERTEX_FBL, VERTEX_BTL, VERTEX_BBL,
-    // Face 6 (Right)
+  // Face 6 (Right)
     VERTEX_FTR, VERTEX_FBR, VERTEX_BBR,
     VERTEX_BBR, VERTEX_BTR, VERTEX_FTR
 };
@@ -49,14 +51,14 @@ static const Vertex sg_vertexes[] = {
 #undef VERTEX_FTL
 #undef VERTEX_FTR
 
-
 OpenGLWidget::OpenGLWidget()
     :QOpenGLWidget(), QOpenGLFunctions()
 {
     m_transform.translate(0.0f, 0.0f, -5.0f);
-    this->grabKeyboard();
-//    this->m_openMesh = NULL;
-    this->m_mesh = NULL;
+    this->grabKeyboard();               // 跟踪按键
+    this->m_mesh = NULL;                // 初始化场景中的mesh
+    this->m_cube = NULL;
+
 }
 
 OpenGLWidget::~OpenGLWidget()
@@ -68,23 +70,21 @@ void OpenGLWidget::initializeGL()
 {
     // initialize opengl
     initializeOpenGLFunctions();
-    //    connect(context(), SIGNAL(aboutToBeDestroyed()),
-    //            this, SLOT(teardownGL()), Qt::DirectConnection);
     connect(this, SIGNAL(frameSwapped()),
-            this, SLOT(update()));
-    this->printContextInformation();
+            this, SLOT(update()));          // 动画渲染
+    this->printContextInformation();        // 输出系统配置信息
 
     // 设置全局的gl设置
     glEnable(GL_CULL_FACE);                 // cull face
     glEnable(GL_DEPTH_TEST);                // 深度测试
-    glLineWidth(10.f);
+//    glLineWidth(10.f);
     glClearDepthf(1.0f);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
     //  Application-specific initialization
     {
         // Create Shader (Do not release until VAO is created)
-        m_program = new QOpenGLShaderProgram();
+        m_program = new QOpenGLShaderProgram(this);
         m_program->addShaderFromSourceFile(
                     QOpenGLShader::Vertex,
                     ":/shaders/resources/shaders/simple.vert");
@@ -99,6 +99,28 @@ void OpenGLWidget::initializeGL()
         this->u_worldToCamera = m_program->uniformLocation("worldToCamera");
         this->u_cameraToView = m_program->uniformLocation("cameraToView");
 
+        this->createCube();         // 创建cube
+
+
+        // Create Vertex Array Object
+        m_object.create();
+        m_object.bind();
+        // Create Buffer (Do not release until VAO is created)
+        m_vertex.create();
+        m_vertex.bind();
+        m_vertex.setUsagePattern(QOpenGLBuffer::StaticDraw);
+        m_vertex.allocate(sg_vertexes, sizeof(sg_vertexes));
+
+        m_program->enableAttributeArray(0);
+        m_program->enableAttributeArray(1);
+        m_program->enableAttributeArray(2);
+        m_program->setAttributeBuffer(0, GL_FLOAT, Vertex::positionOffset(), Vertex::PositionTupleSize, Vertex::stride());
+        m_program->setAttributeBuffer(1, GL_FLOAT, Vertex::colorOffset(), Vertex::ColorTupleSize, Vertex::stride());
+        m_program->setAttributeBuffer(2, GL_FLOAT, Vertex::texCoordsOffset(), Vertex::TexCoordsTupleSize, Vertex::stride());
+
+        // Release (unbind) all
+        m_object.release();
+        m_vertex.release();
         m_program->release();       // realse unbind
     }
 
@@ -114,7 +136,7 @@ void OpenGLWidget::resizeGL(int w, int h)
     qDebug() << "openglWidget resize: " << w
              << " "<< h;
     m_projection.setToIdentity();
-    m_projection.perspective(45.0f, w / float(h), 1.0f, 1000.0f);
+    m_projection.perspective(45.0f, w / float(h), 0.1f, 2000.0f);
 }
 
 ///
@@ -122,31 +144,56 @@ void OpenGLWidget::resizeGL(int w, int h)
 ///
 void OpenGLWidget::paintGL()
 {
-    //    qDebug() << "paintGL";
+//        qDebug() << "paintGL";
 
     // clear
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(1.0,1.0,m_transform.rotation().x(),1.0f);
 
     // Render using our shader
-    m_program->bind();
-    m_program->setUniformValue(u_worldToCamera, m_camera.toMatrix());
-    m_program->setUniformValue(u_cameraToView, m_projection);
+//    m_program->bind();
+//    m_program->setUniformValue(u_worldToCamera, m_camera.toMatrix());
+//    m_program->setUniformValue(u_cameraToView, m_projection);
     // The calls to setUniformValue() allow us to
     // update the value of worldToView and modelToWorld.
 
     // 渲染模型
-    if(this->m_mesh != NULL)
-    {
-        m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
-//        m_openMesh->draw();
-    }
+//    if(this->m_mesh != NULL)
+//    {
+//        m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
+//        this->m_mesh->draw();       // draw
+//    }
+//    if(this->m_cube != NULL)
+//    {
+//        m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
+//        this->m_cube->draw();
+//    }
 
+//    m_program->release();
+
+    // Render using our shader
+    m_program->bind();
+    {
+      m_object.bind();
+      m_program->setUniformValue(u_worldToCamera, m_camera.toMatrix());
+      m_program->setUniformValue(u_cameraToView, m_projection);
+      m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
+      glDrawArrays(GL_TRIANGLES, 0, sizeof(sg_vertexes) / sizeof(sg_vertexes[0]));
+      m_object.release();
+    }
     m_program->release();
 }
 
-void OpenGLWidget::loadMesh()
+///
+/// \brief OpenGLWidget::loadMesh
+/// \param filePath
+///
+void OpenGLWidget::loadMesh(QString filePath)
 {
+    objLoader loader;
 
+    CustomMesh *mesh = loader.loadMesh(filePath);
+    this->m_mesh = mesh;
 }
 
 ///
@@ -165,13 +212,11 @@ void OpenGLWidget::update()
     // Update input
     Input::update();
 
-
     static const float transSpeed = 0.2f;
-    static const float rotSpeed = 0.5f;
+    static const float rotSpeed = 0.3f;
     // Camera Transformation
-    if(Input::buttonPressed(Qt::RightButton))
+    if(Input::buttonPressed(Qt::LeftButton))
     {
-
 
         // handle rotations
         m_camera.rotate(
@@ -180,6 +225,7 @@ void OpenGLWidget::update()
         m_camera.rotate(
                     -rotSpeed * Input::mouseDelta().y(),
                     m_camera.right());
+        qDebug() << "button click";
     }
 
         // handle translations
@@ -210,9 +256,10 @@ void OpenGLWidget::update()
         }
         m_camera.translate(transSpeed * translation);
 
-
     // update instance information
     m_transform.rotate(1.0f, QVector3D(0.4f, 0.3f, 0.3f));
+//    qDebug() << "transform" << m_transform.toMatrix();
+//    qDebug() << "camera" << m_camera.toMatrix();
 
     // Schedule a redraw
     QOpenGLWidget::update();
@@ -250,6 +297,18 @@ void OpenGLWidget::mousePressEvent(QMouseEvent *event)
 void OpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     Input::registerMouseRelease(event->button());
+}
+
+
+///
+/// \brief OpenGLWidget::createCube
+/// 创建一个立方体验证
+///
+void OpenGLWidget::createCube()
+{
+    this->m_cube = new CustomMesh();
+//    this->m_cube->createCube(QVector3D(0,0,0),0.3);
+
 }
 
 ///
