@@ -254,6 +254,9 @@ CustomMesh *objLoader::loadMesh(QString filePath)
     cmesh->m_vao = new QOpenGLVertexArrayObject();
     cmesh->m_vao->create();
     cmesh->m_vao->bind();   // 绑定 vao
+    QOpenGLBuffer *buffer = cmesh->createBuffer();
+    buffer->create();
+    buffer->bind();
 
     if(scene->mNumMeshes > 0)
     {
@@ -272,9 +275,8 @@ CustomMesh *objLoader::loadMesh(QString filePath)
 
         qDebug() << "start view all vertices";
         // 将数据拷贝到缓冲区
-        QOpenGLBuffer *buffer = cmesh->createBuffer();
-        buffer->create();
-        buffer->bind();
+
+
         buffer->allocate( vertices_length * sizeof(Vertex));    // 先分配空间
         Vertex *data = static_cast<Vertex*>(buffer->map(QOpenGLBuffer::ReadWrite));
         for( int vec = 0; vec < vertices_length; vec++)
@@ -293,6 +295,8 @@ CustomMesh *objLoader::loadMesh(QString filePath)
                 vertex.setPosition(QVector3D(0,0,0));
             }
 
+            vertex.setColor(QVector3D(0.3,0.7,0.3));    // 先随便设置
+
             if(aimesh->HasTextureCoords(0))
             {
                 vertex.setTexCoords(
@@ -306,13 +310,18 @@ CustomMesh *objLoader::loadMesh(QString filePath)
                             QVector2D(0,0));
             }
 
-            data[vec] = vertex;
+            data[vec] = vertex;                  // 给buffer赋值
             cmesh->m_vertexs.push_back(vertex);  // 加入
 //            qDebug() << "vec:"<<vec << aimesh->mVertices[vec].x << aimesh->mVertices[vec].y << aimesh->mVertices[vec].z
 //                     << aimesh->mTextureCoords[0][vec].x << aimesh->mTextureCoords[0][vec].y;
-//            qDebug() << "vec: " << v;
         }
+        buffer->unmap();
         qDebug() << "View all vertices";
+
+
+        function->glEnableVertexAttribArray(0);
+        function->glEnableVertexAttribArray(1);
+        function->glEnableVertexAttribArray(2);
 
         function->glVertexAttribPointer(
                     0,
@@ -338,30 +347,31 @@ CustomMesh *objLoader::loadMesh(QString filePath)
                     Vertex::stride(),
                     (void*)Vertex::texCoordsOffset());
 
-        function->glEnableVertexAttribArray(0);
-        function->glEnableVertexAttribArray(1);
-        function->glEnableVertexAttribArray(2);
 
         cmesh->setDrawArrays(GL_TRIANGLES, vertices_length);        // 设置渲染数组
 
-        buffer->unmap();
-        buffer->release();
+        int mat_index = aimesh->mMaterialIndex;     // 获得材质
+        aiMaterial *mat = scene->mMaterials[mat_index]; // material
 
+        // Diffuse
+        qDebug() << "Diffuse Map Num:" << mat->GetTextureCount(aiTextureType_DIFFUSE);
+        if(mat->GetTextureCount(aiTextureType_DIFFUSE) > 0)
+        {
+            aiString textPath;
+            aiReturn retStatus = mat->GetTexture(aiTextureType_DIFFUSE, 0, &textPath);
+            std::string path = textPath.C_Str();
+            QString absolutioinPath = QString::fromStdString(path);
+
+            qDebug() << "Diffuse Map Path: "<< absolutioinPath;
+            CustomTexture *texture = new CustomTexture();
+            texture->load2DTextrue(absolutioinPath);
+            cmesh->textures()->push_back(texture);
+        }
     }
-
-    aiMaterial ** mats = scene->mMaterials; // materials
-
-    for(int i = 0; i < scene->mNumMaterials; i++)
-    {
-        qDebug() << "read materials: "<< i;
-        aiMaterial * mat = mats[i];
-        qDebug() << "numproperties: " << mat->mNumProperties;
-    }
-
 
     cmesh->m_vao->release();    // vao 释放
+    buffer->release();
     cmesh->inited = true;
-
     return cmesh;
 
 }

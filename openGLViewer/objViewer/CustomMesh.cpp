@@ -5,9 +5,10 @@ CustomMesh::CustomMesh(QObject *parent)
 {
     this->inited = false;
     this->m_vao = NULL;
+    this->m_transform = new Transform3D();
 }
 
-void CustomMesh::draw()
+void CustomMesh::draw(QOpenGLShaderProgram* program)
 {
     if(this->inited == false)
         return;
@@ -15,9 +16,19 @@ void CustomMesh::draw()
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
     this->m_vao->bind();
+    if(this->m_textures.size() > 0)
+    {
+        CustomTexture* tex = this->m_textures[0];
+        tex->texture->bind(0);
+        program->setUniformValue("texture_diffuse",0);
+    }
+
     f->glDrawArrays(this->m_mode, 0, this->m_count);
     this->m_vao->release();
-    qDebug("custom mesh draw");
+    if(this->m_textures.size() > 0)
+    {
+        this->m_textures[0]->texture->release();
+    }
 }
 
 void CustomMesh::setDrawArrays(GLenum mode, int count)
@@ -186,4 +197,27 @@ void CustomMesh::createCube(QVector3D position, float size)
     m_vao->release();
     buffer->release();
     qDebug() << "create cube finished";
+}
+
+Transform3D *CustomMesh::transform()
+{
+    return this->m_transform;
+}
+
+// 设置transform
+void CustomMesh::setTransform(Transform3D &transform)
+{
+    this->m_transform->setTranslation(transform.translation());
+    this->m_transform->setRotation(transform.rotation());
+    this->m_transform->setScale(transform.scale());
+}
+
+std::vector<CustomTexture *> *CustomMesh::textures()
+{
+    return &this->m_textures;
+}
+
+CustomTexture *CustomMesh::texture(int index)
+{
+    return this->m_textures[index];
 }
