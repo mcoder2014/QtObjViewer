@@ -14,13 +14,16 @@ Assimp-3.3
 这是一个开源的图形库，支持多种格式的三维模型的读取和写出（读取支持的多，写出支持的少），所以我想用它来支持读取一些格式的三维模型。
 请大家自行配置这个库，并在 `.pro`文件中修改路径地址。
 
+## 工程完成进度问题
+Mesh 就是简单的封装了下，包含了模型的点、UVCoord，贴图。模型绘制的时候使用的是face * 3的点的数量来绘制的，而没有使用Indices进行制作。并且没有实现光照，所以材质理论上是Basic材质。总之写得满糟糕的，刚入手QOpenGL系统的话可以看看。
+
 ## 额
 虽然现在没写完，但已经达到我想要的效果了，暂时先不写了。以后有空再重写一个好一点的浏览框架吧。
-![预览图](doc\images\效果截图1.jpg)
+![预览图](doc/images/效果截图1.jpg)
 
 ## 不中用的笔记
-1. [description of QtOpenGL](doc\description of qtOpenGL.md)
-2. [Learning opengl basic rendering](doc\Learning opengl basic rendering.md)
+1. [description of QtOpenGL](doc/description of qtOpenGL.md)
+2. [Learning opengl basic rendering](doc/Learning opengl basic rendering.md)
 
 ## 参考
 1. [NeHe_OpenGL_Qt5](https://github.com/cwc1987/NeHe_OpenGL_Qt5)

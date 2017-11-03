@@ -8,7 +8,7 @@
 
 ## QOpenGLShaderProgram
 一段运行在GPU上的代码。
-![](images\ShaderPipeline1.png)
+![](images/ShaderPipeline1.png)
 
 shder有很多部分，我们主要写点着色器和片元着色器.
 
