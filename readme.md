@@ -22,8 +22,8 @@ Mesh 就是简单的封装了下，包含了模型的点、UVCoord，贴图。�
 ![预览图](doc/images/效果截图1.jpg)
 
 ## 不中用的笔记
-1. [description of QtOpenGL](doc/description of qtOpenGL.md)
-2. [Learning opengl basic rendering](doc/Learning opengl basic rendering.md)
+1. [description of QtOpenGL](doc/description_of_qtOpenGL.md)
+2. [Learning opengl basic rendering](doc/Learning_opengl_basic_rendering.md)
 
 ## 参考
 1. [NeHe_OpenGL_Qt5](https://github.com/cwc1987/NeHe_OpenGL_Qt5)

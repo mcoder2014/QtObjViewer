@@ -1,4 +1,4 @@
-#include "transform3d.h"
+#include "Transform3D.h"
 #include <QDebug>
 
 

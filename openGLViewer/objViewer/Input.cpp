@@ -1,4 +1,4 @@
-#include "input.h"
+#include "Input.h"
 #include <QCursor>
 #include <vector>
 #include <algorithm>

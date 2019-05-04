@@ -1,4 +1,4 @@
-#include "openglmesh.h"
+#include "OpenGLMesh.h"
 #include <QOpenGLBuffer>
 #include <QOpenGLFunctions>
 #include <QOpenGLVertexArrayObject>

@@ -27,6 +27,8 @@ MOC_DIR = ./moc
 OBJECTS_DIR = ./tmp
 RCC_DIR = ./tmp
 
+
+win32 {
 INCLUDEPATH += \
     ./ \
     E:/libs/assimp-3.3/include \      # assimp的Include文件夹的路径
@@ -35,6 +37,16 @@ INCLUDEPATH += \
 
 LIBS += -LE:/libs/assimp-3.3/build/code/Release -lassimp-vc140-mt \  # assimp的lib文件
         -LE:/libs/OpenMesh-6.3/lib -lOpenMeshCore -lOpenMeshTools
+}
+
+unix {
+
+INCLUDEPATH += \
+            ./ \
+#            /usr/include
+
+LIBS += -L/usr/lib -lassimp
+}
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
